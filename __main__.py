@@ -16,11 +16,32 @@ def Validate_IP(IP):
     check1 = re.compile(regexIPv4)
     check2 = re.compile(regexIPv6)
 
-    if (re.search(check1, IP)):
+    if (check1.search(IP)):
         return True
-    elif (re.search(check2, IP)):
+    elif (check2.search(IP)):
         return True
     return False
+
+def Return_TS(driver_code_line):
+    regexTS = r"TS=([0-9]*)\s"
+    TScheck = re.compile(regexTS)
+    TSreturn = ""
+    if(TScheck.search(driver_code_line)):
+        TSreturn = TScheck.search(driver_code_line).group(1)
+    return TSreturn
+
+def Return_Token(driver_code_line):
+    regexToken = r"token=(.*)'"
+    Tokencheck = re.compile(regexToken)
+    Tokenreturn = ""
+    if(Tokencheck.search(driver_code_line)):
+        Tokenreturn = Tokencheck.search(driver_code_line).group(1)
+    return Tokenreturn
+
+def End_Script(new_log_text):
+    with open("log.txt", "w") as log_file:
+         log_file.write(new_log_text)
+    exit
 
 def main():
     current_time = datetime.datetime.now()
@@ -44,13 +65,16 @@ def main():
         print("File named 'default-code.txt' not found or has been changed.")
         exit()
 
-    #declare two var to use later
-    code_pairs = ""
-    ip_addresses = ""
+    #declare 3 var to use later
+    driver_codes = []
+    ip_addresses = []
+    code_pairs = []
+
+    #declare the list that will have the ip addresses combined with the code pairs
+    complete_pairs = []
 
     #open ip file
     #start loop until ip file has no more lines
-    #========================
     try:
         with open("printer-IPs.txt", "r") as ip_file:
             print("Found IP file.")
@@ -65,7 +89,7 @@ def main():
                         try:
                             test_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                             test_socket.connect(line, 22)
-                            ip_addresses += (line)
+                            ip_addresses.append(line)
                         except Exception:
                             log_text += f"!!!!IP {line} ssh error!!!!\n"
                         test_socket.close()
@@ -73,15 +97,31 @@ def main():
                         log_text += f"!!!!IP {line} is unreachable!!!!\n"
                 else:
                     log_text += f"!!!!Invalid ip {line} found!!!!\n"
-            print(ip_addresses)
+            #print(ip_addresses)
     except IOError:
         print("File named 'printer-IPs.txt' not found.")
-        exit()     
-    #=======================
+        End_Script(log_text)
 
     #open code file
-    #start loop until ip_address has no more indexes
-    #=======================
+    try:
+        with open("driver-codes.txt", "r") as codes_file:
+            print("Found driver-codes file.")
+            lines = codes_file.readlines()
+            for line in lines:
+                line = line.rstrip('\n')
+                if(line != "" and line != None):
+                    driver_codes.append(line)
+    except IOError:
+        print("File named 'driver-codes.txt' not found.")
+        End_Script(log_text)
+
+    for code in driver_codes:
+        if(Return_TS(code) != "" and Return_Token(code) != ""):
+            code_pairs.append((Return_TS(code), Return_Token(code)))
+        else:
+            continue
+    
+    #start loop until ip_addresses has no more indexes
     #-----if there are no more codes -----> append log file('ip_address' has no code pair) --------> continue
     #temp_code = current line of code file
     #check the code to make sure its not blank
@@ -103,8 +143,7 @@ def main():
 
     #if there are unused driver codes ----> append them to a file called 'unused-codes'
     #append log with time stamp and number of codes ran
-    with open("log.txt", "w") as log_file:
-         log_file.write(log_text)
+    End_Script(log_text)
 
 
 if __name__ == "__main__":
