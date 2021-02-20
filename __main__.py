@@ -3,6 +3,8 @@ import getpass
 import re
 import os
 import socket
+# import subprocess
+# import sys
 
 def Validate_IP(IP):
     regexIPv4 = "(([0-9]|[1-9][0-9]|1[0-9][0-9]|"\
@@ -120,7 +122,8 @@ def main():
             code_pairs.append((Return_TS(code), Return_Token(code)))
         else:
             continue
-    
+
+
     #start loop until ip_addresses has no more indexes
     #-----if there are no more codes -----> append log file('ip_address' has no code pair) --------> continue
     #temp_code = current line of code file
