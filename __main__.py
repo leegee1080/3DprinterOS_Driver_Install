@@ -3,6 +3,12 @@ import getpass
 import re
 import os
 import socket
+
+try:
+    from paramiko import SSHClient
+except ModuleNotFoundError:
+    print("Module paramiko not installed...attemping to install.")
+    os.system("pip install paramiko")
 # import subprocess
 # import sys
 
@@ -54,6 +60,7 @@ def main():
     print("What is the password for the root user?")
     user_password = getpass.getpass()
 
+    #OPTIONAL!!
     #ask user if they would like to batch change pw for root user
     #ask user if they would like to run custom code
     #if yes then ask if user would like to run custom code with TScode and token filled in.
@@ -79,30 +86,30 @@ def main():
     #start loop until ip file has no more lines
     try:
         with open("printer-IPs.txt", "r") as ip_file:
-            print("Found IP file.")
-            lines = ip_file.readlines()
-            for line in lines:
-                line = line.rstrip('\n')
-                #check each line for correct ip address format
-                if(Validate_IP(line)):
-                    #check ping the ip address
-                    if(os.system(f"ping -n 1 {line}") == 0):
-                        #check attempt ssh with default usr and pw 'telnet $ssh-host $ssh-port'
-                        try:
-                            test_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                            test_socket.connect(line, 22)
-                            ip_addresses.append(line)
-                        except Exception:
-                            log_text += f"!!!!IP {line} ssh error!!!!\n"
-                        test_socket.close()
-                    else:
-                        log_text += f"!!!!IP {line} is unreachable!!!!\n"
-                else:
-                    log_text += f"!!!!Invalid ip {line} found!!!!\n"
-            #print(ip_addresses)
+            print("Found IP file.")      
     except IOError:
         print("File named 'printer-IPs.txt' not found.")
         End_Script(log_text)
+
+    with open("printer-IPs.txt", "r") as ip_file:
+        lines = ip_file.readlines()
+        for line in lines:
+            line = line.rstrip('\n')
+            #check each line for correct ip address format
+            if(Validate_IP(line)):
+                #check ping the ip address
+                if(os.system(f"ping -n 1 {line}") == 0):
+                    #check attempt ssh with default usr and pw 'telnet $ssh-host $ssh-port'
+                    new_client = SSHClient()
+                    try:
+                        new_client.connect(line, username='root', password=user_password)
+                        new_client.close()
+                    except TimeoutError:
+                        log_text += f"!!!!SSH {line} is unreachable!!!!\n"
+                else:
+                    log_text += f"!!!!IP {line} is unreachable!!!!\n"
+            else:
+                log_text += f"!!!!Invalid ip {line} found!!!!\n"
 
     #open code file
     try:
@@ -117,22 +124,25 @@ def main():
         print("File named 'driver-codes.txt' not found.")
         End_Script(log_text)
 
+    #create the code pair tuples
     for code in driver_codes:
         if(Return_TS(code) != "" and Return_Token(code) != ""):
             code_pairs.append((Return_TS(code), Return_Token(code)))
         else:
             continue
 
-
-    #start loop until ip_addresses has no more indexes
+    #combine all the vars together and check if there is enough codes to go around
+    pairs_counter = 0
+    for ip in ip_addresses:
+        temp_tuple = code_pairs[pairs_counter]
+        complete_pairs.append((ip,temp_tuple(0),temp_tuple(1)))
+        pairs_counter += 1
     #-----if there are no more codes -----> append log file('ip_address' has no code pair) --------> continue
-    #temp_code = current line of code file
-    #check the code to make sure its not blank
     #-----if blank -----> continue
     #grab the TS code and token ---> ts_code, download_token
     #default_terminal_line_filled = default_terminal_line + (find replace the correct fields)
     #temp_tuple = (ip_address, default_terminal_line_filled)
-    #place the code pairs with ip addresses in a list  'code_pairs.append(temp_tuple)'
+    #place the code pairs with ip addresses in a list  'complete_pairs.append(temp_tuple)'
     #=======================
 
     #code_pairs should be a complete list of tuples that are a set
@@ -147,6 +157,7 @@ def main():
     #if there are unused driver codes ----> append them to a file called 'unused-codes'
     #append log with time stamp and number of codes ran
     End_Script(log_text)
+    return
 
 
 if __name__ == "__main__":

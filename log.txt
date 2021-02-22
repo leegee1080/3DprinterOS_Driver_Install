@@ -1,5 +1,5 @@
 ----3DprinterOS Driver Install----
-Log started on 19:54:41 on Friday, February the 19th, 2021
-!!!!IP 123.132.123.123123123 is unreachable!!!!
-!!!!IP 8.8.8.8 ssh error!!!!
+Log started on 18:40:48 on Monday, February the 22th, 2021
+!!!!Invalid ip 123.132.asdf.123 found!!!!
+!!!!SSH 8.8.8.8 is unreachable!!!!
 !!!!Invalid ip asdfsfadf found!!!!
