@@ -4,8 +4,15 @@ import re
 import os
 import socket
 
+version = 0.3
+
+print(f"\n\nYou are using version {version} of the 3DprinterOS Driver Install Script by Mitchell Greene.")
+usage_warning = input("\tBy pressing 'enter' you accept that useage of this program is at your own risk.\n\tIf you do not accept these terms, close this program by pressing 'CTRL-C'.\n\n")
+
+
+
 try:
-    from paramiko import SSHClient
+    import paramiko
 except ModuleNotFoundError:
     print("Module paramiko not installed...attemping to install.")
     os.system("pip install paramiko")
@@ -101,12 +108,13 @@ def main():
                 #check ping the ip address
                 if(os.system(f"ping -n 1 {line}") == 0):
                     #check attempt ssh with default usr and pw 'telnet $ssh-host $ssh-port'
-                    new_client = SSHClient()
+                    new_client = paramiko.SSHClient()
+                    new_client.set_missing_host_key_policy(paramiko.AutoAddPolicy)
                     try:
                         new_client.connect(line, username='root', password=user_password)
                         new_client.close()
-                    except TimeoutError:
-                        log_text += f"!!!!SSH {line} is unreachable!!!!\n"
+                    except (TimeoutError, paramiko.ssh_exception.AuthenticationException) as exceptions:
+                        log_text += f"!!!!SSH error: {exceptions} on IP: {line}!!!!\n"
                 else:
                     log_text += f"!!!!IP {line} is unreachable!!!!\n"
             else:
