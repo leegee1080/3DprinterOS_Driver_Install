@@ -47,7 +47,8 @@ def Return_Token(driver_code_line):
     return Tokenreturn
 
 def End_Script(new_log_text):
-    with open("log.txt", "w") as log_file:
+    current_time = datetime.datetime.now()
+    with open(f"log_{current_time.strftime('%H-%M-%S_%d-%Y')}.txt", "w") as log_file:
          log_file.write(new_log_text)
     exit
 
