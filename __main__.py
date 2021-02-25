@@ -2,22 +2,18 @@ import datetime
 import getpass
 import re
 import os
-import socket
 
-version = 0.3
+version = 0.4
 
 print(f"\n\nYou are using version {version} of the 3DprinterOS Driver Install Script by Mitchell Greene.")
 usage_warning = input("\tBy pressing 'enter' you accept that useage of this program is at your own risk.\n\tIf you do not accept these terms, close this program by pressing 'CTRL-C'.\n\n")
-
 
 
 try:
     import paramiko
 except ModuleNotFoundError:
     print("Module paramiko not installed...attemping to install.")
-    os.system("pip install paramiko")
-# import subprocess
-# import sys
+    os.system("python -m pip install paramiko")
 
 def Validate_IP(IP):
     regexIPv4 = "(([0-9]|[1-9][0-9]|1[0-9][0-9]|"\
@@ -68,19 +64,21 @@ def main():
     print("What is the password for the root user?")
     user_password = getpass.getpass()
 
+
+# ====================================================
     #OPTIONAL!!
     #ask user if they would like to batch change pw for root user
     #ask user if they would like to run custom code
     #if yes then ask if user would like to run custom code with TScode and token filled in.
-
     #otherwise run default code
-    try:
-        with open("default-code.txt", "r") as default_code_file:
-            print("Found default code file.")
-            default_terminal_line = default_code_file.read()
-    except IOError:
-        print("File named 'default-code.txt' not found or has been changed.")
-        exit()
+    # try:
+    #     with open("default-code.txt", "r") as default_code_file:
+    #         print("Found default code file.")
+    #         default_terminal_line = default_code_file.read()
+    # except IOError:
+    #     print("File named 'default-code.txt' not found or has been changed.")
+    #     exit()
+#===================================================
 
     #declare 3 var to use later
     driver_codes = []
@@ -113,6 +111,7 @@ def main():
                     try:
                         new_client.connect(line, username='root', password=user_password)
                         new_client.close()
+                        ip_addresses.append(line)
                     except (TimeoutError, paramiko.ssh_exception.AuthenticationException) as exceptions:
                         log_text += f"!!!!SSH error: {exceptions} on IP: {line}!!!!\n"
                 else:
@@ -141,25 +140,20 @@ def main():
             continue
 
     #combine all the vars together and check if there is enough codes to go around
-    pairs_counter = 0
-    for ip in ip_addresses:
-        temp_tuple = code_pairs[pairs_counter]
-        complete_pairs.append((ip,temp_tuple(0),temp_tuple(1)))
-        pairs_counter += 1
-    #-----if there are no more codes -----> append log file('ip_address' has no code pair) --------> continue
-    #-----if blank -----> continue
-    #grab the TS code and token ---> ts_code, download_token
-    #default_terminal_line_filled = default_terminal_line + (find replace the correct fields)
-    #temp_tuple = (ip_address, default_terminal_line_filled)
-    #place the code pairs with ip addresses in a list  'complete_pairs.append(temp_tuple)'
-    #=======================
+    for index, ip in enumerate(ip_addresses):
+        try:
+            temp_tuple = code_pairs[index]
+            complete_pairs.append((ip,temp_tuple[0],temp_tuple[1]))
+        except IndexError:
+            log_text += f"!!!!{ip} does not have a code pair!!!!\n"
 
-    #code_pairs should be a complete list of tuples that are a set
-
-    #start loop until there are no more items in code_pairs
+    print(complete_pairs)
+    #start loop until there are no more items in complete_pairs
     #=======================
-    #ssh into ip -----> code_pairs(0)
-    #run code ----> code_pairs(1)
+    for pair in complete_pairs:
+        continue
+    #ssh into ip
+    #run code
     #----if code ran with error -----> append log line('code_pairs(0)' failed to run code 'code_pairs(1)')
     #======================
 

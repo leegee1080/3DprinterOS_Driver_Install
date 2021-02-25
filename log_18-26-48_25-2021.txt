@@ -1,0 +1,8 @@
+----3DprinterOS Driver Install----
+Log started on 18:26:36 on Thursday, February the 25th, 2021
+!!!!Invalid ip 123.132.asdf.123 found!!!!
+!!!!IP 192.168.1.0 is unreachable!!!!
+!!!!Invalid ip asdfsfadf found!!!!
+!!!!IP 10.236.30.170 is unreachable!!!!
+!!!!IP 10.236.30.155 is unreachable!!!!
+!!!!1.1.1.1 does not have a code pair!!!!
