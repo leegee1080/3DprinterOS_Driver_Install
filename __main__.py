@@ -51,7 +51,8 @@ def Return_Token(driver_code_line):
 
 def End_Script(new_log_text):
     current_time = datetime.datetime.now()
-    with open(f"logs\log_{current_time.strftime('%H-%M-%S_%d-%Y')}.txt", "w") as log_file:
+    logfolder = r"logs\log_"
+    with open(f"{logfolder}{current_time.strftime('%H-%M-%S_%d-%Y')}.txt", "w") as log_file:
          log_file.write(new_log_text)
     exit
 
@@ -91,13 +92,13 @@ def main():
     #open ip file
     #start loop until ip file has no more lines
     try:
-        with open("userfiles\printer-IPs.txt", "r") as ip_file:
+        with open(r"userfiles\printer-IPs.txt", "r") as ip_file:
             print("Found IP file.")      
     except IOError:
         print("File named 'printer-IPs.txt' not found.")
         End_Script(log_text)
 
-    with open("userfiles\printer-IPs.txt", "r") as ip_file:
+    with open(r"userfiles\printer-IPs.txt", "r") as ip_file:
         lines = ip_file.readlines()
         for line in lines:
             line = line.rstrip('\n')
