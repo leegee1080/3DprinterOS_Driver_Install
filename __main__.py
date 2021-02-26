@@ -51,7 +51,7 @@ def Return_Token(driver_code_line):
 
 def End_Script(new_log_text):
     current_time = datetime.datetime.now()
-    with open(f"log_{current_time.strftime('%H-%M-%S_%d-%Y')}.txt", "w") as log_file:
+    with open(f"logs\log_{current_time.strftime('%H-%M-%S_%d-%Y')}.txt", "w") as log_file:
          log_file.write(new_log_text)
     exit
 
@@ -72,7 +72,7 @@ def main():
     #if yes then ask if user would like to run custom code with TScode and token filled in.
     #otherwise run default code
     # try:
-    #     with open("default-code.txt", "r") as default_code_file:
+    #     with open("src\default-code.txt", "r") as default_code_file:
     #         print("Found default code file.")
     #         default_terminal_line = default_code_file.read()
     # except IOError:
@@ -91,13 +91,13 @@ def main():
     #open ip file
     #start loop until ip file has no more lines
     try:
-        with open("printer-IPs.txt", "r") as ip_file:
+        with open("userfiles\printer-IPs.txt", "r") as ip_file:
             print("Found IP file.")      
     except IOError:
         print("File named 'printer-IPs.txt' not found.")
         End_Script(log_text)
 
-    with open("printer-IPs.txt", "r") as ip_file:
+    with open("userfiles\printer-IPs.txt", "r") as ip_file:
         lines = ip_file.readlines()
         for line in lines:
             line = line.rstrip('\n')
@@ -121,7 +121,7 @@ def main():
 
     #open code file
     try:
-        with open("driver-codes.txt", "r") as codes_file:
+        with open("userfiles\driver-codes.txt", "r") as codes_file:
             print("Found driver-codes file.")
             lines = codes_file.readlines()
             for line in lines:

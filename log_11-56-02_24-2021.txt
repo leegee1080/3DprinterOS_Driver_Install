@@ -1,5 +1,0 @@
-----3DprinterOS Driver Install----
-Log started on 11:55:38 on Wednesday, February the 24th, 2021
-!!!!Invalid ip 123.132.asdf.123 found!!!!
-!!!!SSH 8.8.8.8 is unreachable!!!!
-!!!!Invalid ip asdfsfadf found!!!!
