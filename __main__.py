@@ -49,6 +49,10 @@ def Return_Token(driver_code_line):
         Tokenreturn = Tokencheck.search(driver_code_line).group(1)
     return Tokenreturn
 
+def Command_Constructor(first_code, second_code):
+    command = ""
+    return command
+
 def End_Script(new_log_text):
     current_time = datetime.datetime.now()
     logfolder = r"logs\log_"
@@ -122,7 +126,7 @@ def main():
 
     #open code file
     try:
-        with open("userfiles\driver-codes.txt", "r") as codes_file:
+        with open(r"userfiles\driver-codes.txt", "r") as codes_file:
             print("Found driver-codes file.")
             lines = codes_file.readlines()
             for line in lines:
@@ -149,9 +153,18 @@ def main():
             log_text += f"!!!!{ip} does not have a code pair!!!!\n"
 
     print(complete_pairs)
+    End_Script(log_text) #this is here for temp testing !!!!DELETE ME
     #start loop until there are no more items in complete_pairs
     #=======================
     for pair in complete_pairs:
+        new_client = paramiko.SSHClient()
+        new_client.set_missing_host_key_policy(paramiko.AutoAddPolicy)
+        try:
+            new_client.connect(pair[0], username='root', password=user_password)
+            constructed_command = Command_Constructor(pair[1], pair[2])
+            new_client.exec_command(constructed_command)
+        except (TimeoutError, paramiko.ssh_exception.AuthenticationException) as exceptions:
+            log_text += f"!!!!SSH error on the code ex. stage: {exceptions} on IP: {pair[0]}!!!!\n"
         continue
     #ssh into ip
     #run code
