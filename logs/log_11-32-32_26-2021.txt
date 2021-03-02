@@ -1,9 +1,0 @@
-----3DprinterOS Driver Install----
-Log started on 11:31:21 on Friday, February the 26th, 2021
-!!!!Invalid ip 123.132.asdf.123 found!!!!
-!!!!SSH error: [WinError 10060] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond on IP: 8.8.8.8!!!!
-!!!!SSH error: [WinError 10060] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond on IP: 8.8.4.4!!!!
-!!!!SSH error: [WinError 10060] A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond on IP: 1.1.1.1!!!!
-!!!!Invalid ip asdfsfadf found!!!!
-!!!!IP 10.236.30.170 is unreachable!!!!
-!!!!IP 10.236.30.155 is unreachable!!!!

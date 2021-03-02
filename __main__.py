@@ -49,14 +49,17 @@ def Return_Token(driver_code_line):
         Tokenreturn = Tokencheck.search(driver_code_line).group(1)
     return Tokenreturn
 
-def Command_Constructor(first_code, second_code):
-    command = ""
+def Command_Constructor(code_template, first_code, second_code):
+    command = code_template
+    command= re.sub("!TSCODE!", first_code, command)
+    command= re.sub("!TOKEN!", second_code, command)
     return command
 
 def End_Script(new_log_text):
     current_time = datetime.datetime.now()
-    logfolder = r"logs\log_"
-    with open(f"{logfolder}{current_time.strftime('%H-%M-%S_%d-%Y')}.txt", "w") as log_file:
+    log_folder = r"logs\log_"
+    print(f"Exiting script and writing log file to {log_folder}...")
+    with open(f"{log_folder}{current_time.strftime('%H-%M-%S_%d-%Y')}.txt", "w") as log_file:
          log_file.write(new_log_text)
     exit
 
@@ -76,25 +79,28 @@ def main():
     #ask user if they would like to run custom code
     #if yes then ask if user would like to run custom code with TScode and token filled in.
     #otherwise run default code
-    # try:
-    #     with open("src\default-code.txt", "r") as default_code_file:
-    #         print("Found default code file.")
-    #         default_terminal_line = default_code_file.read()
-    # except IOError:
-    #     print("File named 'default-code.txt' not found or has been changed.")
-    #     exit()
+    try:
+        default_code_file_folder = r"src\default-code.txt"
+        with open(default_code_file_folder, "r") as default_code_file:
+            print("Found default code file.")
+            default_terminal_line = default_code_file.read()
+    except IOError:
+        print("File named 'default-code.txt' not found or has been changed.")
+        exit()
 #===================================================
 
     #declare 3 var to use later
     driver_codes = []
     ip_addresses = []
     code_pairs = []
+    template_code = default_terminal_line
 
     #declare the list that will have the ip addresses combined with the code pairs
     complete_pairs = []
 
     #open ip file
     #start loop until ip file has no more lines
+    print("-------Validating IPs.-------")
     try:
         with open(r"userfiles\printer-IPs.txt", "r") as ip_file:
             print("Found IP file.")      
@@ -106,6 +112,7 @@ def main():
         lines = ip_file.readlines()
         for line in lines:
             line = line.rstrip('\n')
+            print(f"Testing: {line}.")
             #check each line for correct ip address format
             if(Validate_IP(line)):
                 #check ping the ip address
@@ -123,6 +130,7 @@ def main():
                     log_text += f"!!!!IP {line} is unreachable!!!!\n"
             else:
                 log_text += f"!!!!Invalid ip {line} found!!!!\n"
+    print("-------Finished validating IPs.-------")
 
     #open code file
     try:
@@ -138,7 +146,9 @@ def main():
         End_Script(log_text)
 
     #create the code pair tuples
+    print("-------Creating code pairs.-------")
     for code in driver_codes:
+        print(f"Combining: {code}.")
         if(Return_TS(code) != "" and Return_Token(code) != ""):
             code_pairs.append((Return_TS(code), Return_Token(code)))
         else:
@@ -146,30 +156,32 @@ def main():
 
     #combine all the vars together and check if there is enough codes to go around
     for index, ip in enumerate(ip_addresses):
+        print(f"Combining: {ip}.")
         try:
             temp_tuple = code_pairs[index]
             complete_pairs.append((ip,temp_tuple[0],temp_tuple[1]))
         except IndexError:
             log_text += f"!!!!{ip} does not have a code pair!!!!\n"
+    print("-------Finished creating code pairs.-------")
 
-    print(complete_pairs)
-    End_Script(log_text) #this is here for temp testing !!!!DELETE ME
     #start loop until there are no more items in complete_pairs
-    #=======================
-    for pair in complete_pairs:
-        new_client = paramiko.SSHClient()
-        new_client.set_missing_host_key_policy(paramiko.AutoAddPolicy)
-        try:
-            new_client.connect(pair[0], username='root', password=user_password)
-            constructed_command = Command_Constructor(pair[1], pair[2])
-            new_client.exec_command(constructed_command)
-        except (TimeoutError, paramiko.ssh_exception.AuthenticationException) as exceptions:
-            log_text += f"!!!!SSH error on the code ex. stage: {exceptions} on IP: {pair[0]}!!!!\n"
-        continue
-    #ssh into ip
-    #run code
-    #----if code ran with error -----> append log line('code_pairs(0)' failed to run code 'code_pairs(1)')
-    #======================
+    if(len(complete_pairs) > 0):
+        print("-------Execute code pairs.-------")
+        for pair in complete_pairs:
+            print(f"Executing: {pair}.")
+            new_client = paramiko.SSHClient()
+            new_client.set_missing_host_key_policy(paramiko.AutoAddPolicy)
+            try:
+                new_client.connect(pair[0], username='root', password=user_password)
+                constructed_command = Command_Constructor(template_code, pair[1], pair[2])
+                new_client.exec_command(constructed_command)
+            except (TimeoutError, paramiko.ssh_exception.AuthenticationException) as exceptions:
+                log_text += f"!!!!SSH error on the code ex. stage: {exceptions} on IP: {pair[0]}!!!!\n"
+            continue
+        print("-------Finished execute code pairs.-------")
+    else:
+        print("No code pairs to execute.")
+        log_text += "No code pairs to execute.\n"
 
     #if there are unused driver codes ----> append them to a file called 'unused-codes'
     #append log with time stamp and number of codes ran
