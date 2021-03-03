@@ -2,6 +2,8 @@ import datetime
 import getpass
 import re
 import os
+import time
+import select
 
 version = 0.4
 
@@ -112,7 +114,7 @@ def main():
         lines = ip_file.readlines()
         for line in lines:
             line = line.rstrip('\n')
-            print(f"Testing: {line}.")
+            print(f"Testing: ({line}).")
             #check each line for correct ip address format
             if(Validate_IP(line)):
                 #check ping the ip address
@@ -124,7 +126,7 @@ def main():
                         new_client.connect(line, username='root', password=user_password)
                         new_client.close()
                         ip_addresses.append(line)
-                    except (TimeoutError, paramiko.ssh_exception.AuthenticationException) as exceptions:
+                    except (TimeoutError, paramiko.ssh_exception.AuthenticationException, paramiko.ssh_exception.NoValidConnectionsError) as exceptions:
                         log_text += f"!!!!SSH error: {exceptions} on IP: {line}!!!!\n"
                 else:
                     log_text += f"!!!!IP {line} is unreachable!!!!\n"
@@ -132,15 +134,22 @@ def main():
                 log_text += f"!!!!Invalid ip {line} found!!!!\n"
     print("-------Finished validating IPs.-------")
 
+    if(ip_addresses == 0):
+        print("There are no usuable IP addresses.")
+        End_Script(log_text)
+
     #open code file
     try:
-        with open(r"userfiles\driver-codes.txt", "r") as codes_file:
+        with open(r"userfiles\driver-codes.txt", "r+") as codes_file:
             print("Found driver-codes file.")
             lines = codes_file.readlines()
             for line in lines:
                 line = line.rstrip('\n')
                 if(line != "" and line != None):
                     driver_codes.append(line)
+            # codes_file.seek(0, 0)
+            # codes_file.write("")
+            # codes_file.truncate(0)
     except IOError:
         print("File named 'driver-codes.txt' not found.")
         End_Script(log_text)
@@ -156,13 +165,14 @@ def main():
 
     #combine all the vars together and check if there is enough codes to go around
     for index, ip in enumerate(ip_addresses):
-        print(f"Combining: {ip}.")
+        print(f"Combining: ({ip}).")
         try:
             temp_tuple = code_pairs[index]
             complete_pairs.append((ip,temp_tuple[0],temp_tuple[1]))
         except IndexError:
             log_text += f"!!!!{ip} does not have a code pair!!!!\n"
     print("-------Finished creating code pairs.-------")
+
 
     #start loop until there are no more items in complete_pairs
     if(len(complete_pairs) > 0):
@@ -172,9 +182,20 @@ def main():
             new_client = paramiko.SSHClient()
             new_client.set_missing_host_key_policy(paramiko.AutoAddPolicy)
             try:
-                new_client.connect(pair[0], username='root', password=user_password)
+                new_client.connect(pair[0], port=22, username='root', password=user_password)
                 constructed_command = Command_Constructor(template_code, pair[1], pair[2])
-                new_client.exec_command(constructed_command)
+                print(f"Contstructed code to execute on IP {pair[0]}: {constructed_command}")
+                stdin, stdout, stderr = new_client.exec_command(constructed_command)
+                while not stdout.channel.exit_status_ready():
+                    time.sleep(0.1)
+                     # Only print data if there is data to read in the channel
+                    if stdout.channel.recv_ready():
+                        rl, wl, xl = select.select([stdout.channel], [], [], 0.0)
+                        if len(rl) > 0:
+                        # Print data from stdout
+                            print(stdout.channel.recv(1024))
+                # stdin, stdout, stderr = new_client.exec_command("ip interface brief")
+                new_client.close()
             except (TimeoutError, paramiko.ssh_exception.AuthenticationException) as exceptions:
                 log_text += f"!!!!SSH error on the code ex. stage: {exceptions} on IP: {pair[0]}!!!!\n"
             continue
