@@ -11,5 +11,5 @@ Script to automate the install of drivers on systems with recent firmware update
 
 
 Instructions for use:
-Fill the two text files in the 'userfiles' folder.
-Run __main__.py
+1. Fill the two text files in the 'userfiles' folder.
+2. Run __main__.py
