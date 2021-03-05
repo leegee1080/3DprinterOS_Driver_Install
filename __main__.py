@@ -1,6 +1,6 @@
 import datetime, getpass, re, os, socket
 
-version = 0.9
+version = 1.0
 
 print(f"\n\nYou are using version {version} of the 3DprinterOS Driver Install Script by Mitchell Greene.")
 usage_warning = input("\tBy pressing 'enter' you accept that useage of this program is at your own risk.\n\tIf you do not accept these terms, close this program by pressing 'CTRL-C'.\n\n")
@@ -97,19 +97,19 @@ def main():
     #ask user if they would like to batch change pw for root user
     #ask user if they would like to run custom code
     while(True):
-        playeranswer = input("What would you like to do? \n (Type 'pw' change password, 'rc' for run custom code, or 'di' 3dPOS driver install.)")
-        if(playeranswer == "pw"):
-            print("Enter the password you would like to apply.")
-            new_user_password1 = getpass.getpass()
-            print("Re-Enter the password you would like to apply.")
-            new_user_password2 = getpass.getpass()
-            if(new_user_password1 == new_user_password2):
-                new_user_password = new_user_password1
-                template_code = "passwd"
-                break
-            else:
-                print("The passwords you entered do not match. Returning to main menu.")
-                continue
+        playeranswer = input("What would you like to do? \n ('rc' for run custom code or 'di' 3dPOS driver install.)")
+#        if(playeranswer == "pw"):
+#            print("Enter the password you would like to apply.")
+#            new_user_password1 = getpass.getpass()
+#            print("Re-Enter the password you would like to apply.")
+#            new_user_password2 = getpass.getpass()
+#            if(new_user_password1 == new_user_password2):
+#                new_user_password = new_user_password1
+#                template_code = "passwd"
+#                break
+#            else:
+#                print("The passwords you entered do not match. Returning to main menu.")
+#                continue
         if(playeranswer == "rc"):
             template_code = input("What is the code you would like to use?")
             print(f"The code to be used on each IP in the 'ip_addresses' file is: {template_code}")
