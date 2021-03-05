@@ -8,3 +8,8 @@ Script to automate the install of drivers on systems with recent firmware update
 4. ssh each ip then login, paste each code, make a log line, and move on to the next IP
 5. save log lines to file
 6. exit script
+
+
+Instructions for use:
+Fill the two text files in the 'userfiles' folder.
+Run __main__.py
