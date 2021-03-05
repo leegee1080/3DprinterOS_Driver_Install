@@ -8,11 +8,3 @@ Script to automate the install of drivers on systems with recent firmware update
 4. ssh each ip then login, paste each code, make a log line, and move on to the next IP
 5. save log lines to file
 6. exit script
-
-Options
-
-1. Input to change p.w. of each root user
-2. Separate input to run a custom line in the ssh before the driver code
-3. Option to chose which ip the custom line is run on.
-
-dont forget" pxssh for ssh
