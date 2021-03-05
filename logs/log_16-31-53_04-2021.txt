@@ -1,7 +1,0 @@
-----3DprinterOS Driver Install----
-Log started on 16:31:30 on Thursday, March the 04th, 2021
-!!!!10.236.30.136 does not have a code pair!!!!
-!!!!10.236.30.143 does not have a code pair!!!!
-No code pairs to execute.
-3dPOS on IP(10.236.30.136) is running.
-3dPOS on IP(10.236.30.143) is running.
