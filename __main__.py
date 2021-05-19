@@ -1,6 +1,6 @@
 import datetime, getpass, re, os, socket
 
-version = 1.0
+version = 1.1
 
 print(f"\n\nYou are using version {version} of the 3DprinterOS Driver Install Script by Mitchell Greene.")
 usage_warning = input("\tBy pressing 'enter' you accept that useage of this program is at your own risk.\n\tIf you do not accept these terms, close this program by pressing 'CTRL-C'.\n\n")
@@ -247,8 +247,8 @@ def main():
         print("No code pairs to execute.")
         log_text += "No code pairs to execute.\n"
 
-    for ip in ip_addresses:
-        log_text += Check_3dPos_Client_Port(ip)
+    # for ip in ip_addresses:  #no need to check this anymore. 3dprinteros has closed this port
+    #     log_text += Check_3dPos_Client_Port(ip)
 
     #if there are unused driver codes ----> append them to a file called 'unused-codes'
     #append log with time stamp and number of codes ran
